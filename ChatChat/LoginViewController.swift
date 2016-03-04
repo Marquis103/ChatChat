@@ -21,15 +21,43 @@
 */
 
 import UIKit
+import Firebase
+
+
 class LoginViewController: UIViewController {
-  
-  override func viewDidLoad() {
-    super.viewDidLoad()
-  }
-
-  @IBAction func loginDidTouch(sender: AnyObject) {
-
-  }
-  
+	
+	//MARK: Properties
+	var reference: Firebase!
+	
+	//MARK: View Controller
+	override func viewDidLoad() {
+		super.viewDidLoad()
+		
+		reference = Firebase(url: "https://intense-fire-3295.firebaseio.com")
+	}
+	
+	//MARK: Actions
+	@IBAction func loginDidTouch(sender: AnyObject) {
+		reference.authAnonymouslyWithCompletionBlock { (error, authData) -> Void in
+			guard error == nil else {
+				print(error.description)
+				return
+			}
+			
+			print(self.reference.authData)
+			
+			self.performSegueWithIdentifier("LoginToChat", sender: nil)
+		}
+	}
+	
+	//MARK: Functions
+	override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+		super.prepareForSegue(segue, sender: sender)
+		
+		let navigationVC = segue.destinationViewController as! UINavigationController
+		let chatVC = navigationVC.viewControllers.first as! ChatViewController
+		chatVC.senderId = reference.authData.uid
+		chatVC.senderDisplayName = ""
+	}
 }
 
